@@ -1,0 +1,57 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #fff;
+  --background: #ffebf2;
+  --envelope-background: #ffe3ed;
+  --flap-background: #ffccd5;
+  --body-background: #ffc1d1;
+  --shadow: rgba(0, 0, 0, 0.2);
+  --text-color: #003049;
+  --heart-color: #ff477e;
+}
+
+body {
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* título parpadeo */
+.blinking-title {
+  animation: slowBlinkFade 2.5s linear infinite;
+  font-family: 'Marck Script', cursive;
+  font-size: 46px;
+  font-weight: bold;
+  color: #4e4b4c;
+  letter-spacing: 2px;
+  text-shadow: 0 4px 24px #ffb5cd55;
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.alt-title {
+  font-size: 30px;
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  color: #b3003c;
+  font-weight: 500;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+@keyframes slowBlinkFade {
+  0%, 40% { opacity: 1; }
+  60% { opacity: 0.15; }
+  100% { opacity: 1; }
+}
+
+body {
+  padding-bottom: 120px;
+}
