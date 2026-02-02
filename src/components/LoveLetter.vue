@@ -1,9 +1,18 @@
 <template>
   <section class="page">
-    <h1 class="blinking-title">
-      holi<br />
-      <span class="alt-title">(¿Puedes tocar el corazón?..)</span>
-    </h1>
+
+    <!-- HEADER + GIF WRAPPER (ocultar al abrir) -->
+    <div class="header-section" :class="{ 'fade-out': envelopeOpen }">
+      <h1 class="blinking-title">
+        holi<br />
+        <span class="alt-title">(¿Puedes tocar el corazón?..)</span>
+      </h1>
+
+      <!-- GIF HELLO KITTY -->
+      <div class="gif-container">
+        <img :src="helloKittyGif" alt="Hello Kitty" class="hello-kitty-gif" />
+      </div>
+    </div>
 
     <div class="container">
       <div
@@ -85,27 +94,20 @@
         </div>
 
         <!-- MISMAS PIEZAS DEL SOBRE -->
+        <div class="heart" @click.stop="toggleEnvelope"></div>
         <div class="right-flap" @click.stop="toggleEnvelope"></div>
         <div class="left-flap" @click.stop="toggleEnvelope"></div>
       </div>
     </div>
     
-    <!-- STICKERS CONTAINER (Moved outside) -->
-    <div class="stickers-container">
-      <img 
-        v-for="sticker in displayedStickers" 
-        :key="sticker.id"
-        :src="sticker.url" 
-        class="sticker"
-        :style="sticker.style"
-      />
-    </div>
+
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import helloKittyGif from '@/assets/gifs/hello-kitty.gif'
 
 type LetterState = 'hidden' | 'preview' | 'open' | 'closing'
 
@@ -120,62 +122,7 @@ const buttonsDisplay = ref<'flex' | 'none'>('flex')
 const noErrorDisplay = ref<'block' | 'none'>('none')
 const noErrorOpacity = ref('0')
 
-// --- STICKERS LOGIC ---
-const STICKER_REPEAT = 2 // Config: repeticiones
 
-const stickersGlob = import.meta.glob('@/assets/stickers/*.(png|jpg|jpeg|svg|gif)', { eager: true, as: 'url' })
-const stickerUrls = Object.values(stickersGlob)
-
-interface Sticker {
-  id: number
-  url: string
-  style: Record<string, string>
-}
-
-// Posiciones aleatorias en los bordes para no tapar texto
-function getRandomPosition() {
-  // Zonas seguras: 0-15% y 85-100% en ambos ejes
-  const isVertical = Math.random() > 0.5
-  const isStart = Math.random() > 0.5
-  
-  let top, left
-  
-  if (isVertical) {
-      // Borde izquierdo o derecho
-      left = isStart ? Math.random() * 15 : 85 + Math.random() * 10
-      top = Math.random() * 95 // A lo largo de todo el alto
-  } else {
-      // Borde superior o inferior
-      top = isStart ? Math.random() * 15 : 85 + Math.random() * 10
-      left = Math.random() * 95
-  }
-
-  return { top: `${top}%`, left: `${left}%` }
-}
-
-
-const displayedStickers = computed<Sticker[]>(() => {
-  const result: Sticker[] = []
-  let idCounter = 0
-  
-  for (let i = 0; i < STICKER_REPEAT; i++) {
-    stickerUrls.forEach(url => {
-      const pos = getRandomPosition()
-      const rotation = (Math.random() - 0.5) * 50
-      
-      result.push({
-        id: idCounter++,
-        url,
-        style: {
-          top: pos.top,
-          left: pos.left,
-          transform: `rotate(${rotation}deg)`,
-        }
-      })
-    })
-  }
-  return result
-})
 
 function toggleEnvelope() {
   // Como el demo: si la carta está abierta, bloquea el sobre
@@ -224,7 +171,7 @@ function onYes() {
   // Si tienes ruta /heart (recomendado), te manda ahí. Si no, no explota.
   router.push('/heart').catch(() => {
     // si no existe la ruta, al menos no se queda “sin hacer nada”
-    // podrías mostrar un modal aquí si quieres
+    // podrías mostrar un modal aquí si quieres 
     alert('SÍ 💖')
   })
 }
@@ -259,6 +206,9 @@ function onNo() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative; /* Contexto para los stickers absolutos */
+  min-height: 100vh; /* Ocupa toda la pantalla al llegar a esta sección */
+  width: 100%;
 }
 
 /* CONTENEDOR */
@@ -517,32 +467,42 @@ strong {
   }
 }
 
-/* STICKERS */
-.stickers-container {
-  position: fixed; /* Fixed relative to viewport */
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 1; /* Low z-index */
-  overflow: hidden; 
-}
+
 
 /* Ensure container is above stickers */
 .container {
-  width: 400px;
   position: relative;
   z-index: 10;
 }
 
-.sticker {
-  position: absolute;
-  width: 80px; /* Slightly larger on page */
-  height: auto;
-  opacity: 0.95;
-  filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
-  transition: transform 0.3s;
+
+
+/* GIF STYLING */
+.gif-container {
+  margin-bottom: 20px; /* Espacio con el sobre */
+  margin-top: -30px; /* Ajuste para acercarlo al texto de arriba si es necesario */
+  z-index: 10;
+  position: relative;
 }
 
+.hello-kitty-gif {
+  width: 100px; /* Tamaño ajustable */
+  height: auto;
+  display: block;
+}
+
+/* Header transition */
+.header-section {
+  transition: opacity 0.5s ease, visibility 0.5s;
+  opacity: 1;
+  visibility: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header-section.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
 </style>
